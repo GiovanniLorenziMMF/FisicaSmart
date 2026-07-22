@@ -3,259 +3,443 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calcolo Gravità Interplanetaria | Telemetria Rover</title>
+    <title>Terminale Missione | Agenzia Spaziale</title>
     <style>
         :root {
             --bg-color: #0f172a;
             --card-bg: #1e293b;
             --accent-color: #38bdf8;
             --accent-hover: #0284c7;
+            --warning-color: #f59e0b;
+            --success-color: #4ade80;
             --text-color: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
-            --success-color: #4ade80;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
         }
 
-        .container {
+        .app-container {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 28px;
-            max-width: 440px;
             width: 100%;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            max-width: 480px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
+            background-color: rgba(15, 23, 42, 0.8);
+            padding: 20px;
             text-align: center;
-            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .badge {
-            display: inline-block;
-            background-color: rgba(56, 189, 248, 0.1);
+        .header h1 {
+            font-size: 1.25rem;
             color: var(--accent-color);
-            font-size: 0.75rem;
-            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            margin-bottom: 8px;
-            border: 1px solid rgba(56, 189, 248, 0.2);
         }
 
-        h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-color);
+        .screen {
+            display: none;
+            padding: 24px;
+            flex-grow: 1;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease;
         }
 
-        .subtitle {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
+        .screen.active {
             display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-color);
         }
 
-        .input-wrapper {
-            position: relative;
+        h2 { font-size: 1.2rem; margin-bottom: 15px; color: var(--text-color); }
+        p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
+
+        /* Menu Buttons */
+        .menu-btn {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-        }
-
-        input {
             width: 100%;
-            padding: 12px 16px;
-            padding-right: 60px;
             background-color: #0f172a;
             border: 1px solid var(--border-color);
-            border-radius: 10px;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
             color: var(--text-color);
-            font-size: 1.125rem;
+            font-size: 1rem;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .menu-btn:hover { border-color: var(--accent-color); }
+        .menu-btn.completed { border-color: var(--success-color); }
+        
+        .status-icon { font-size: 1.2rem; }
+
+        /* Forms */
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--accent-color); }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 1rem;
             outline: none;
-            transition: all 0.2s ease;
         }
+        input:focus, select:focus { border-color: var(--accent-color); }
 
-        input:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-        }
-
-        .unit {
-            position: absolute;
-            right: 16px;
-            color: var(--text-muted);
-            font-size: 0.875rem;
-            font-weight: 600;
-            pointer-events: none;
-        }
-
-        button {
+        .btn-submit {
             width: 100%;
             padding: 14px;
             background-color: var(--accent-color);
             color: #0f172a;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
+            margin-top: 10px;
+        }
+        
+        .btn-back {
+            width: 100%;
+            padding: 12px;
+            background-color: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 15px;
+            cursor: pointer;
         }
 
-        button:hover {
-            background-color: var(--accent-hover);
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
+        /* Results Box */
         .result-box {
-            margin-top: 24px;
-            padding: 20px;
-            background-color: rgba(15, 23, 42, 0.6);
-            border: 1px dashed var(--border-color);
-            border-radius: 12px;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(74, 222, 128, 0.1);
+            border: 1px dashed var(--success-color);
+            border-radius: 8px;
             text-align: center;
             display: none;
         }
+        .result-box.active { display: block; }
+        .res-title { font-size: 0.8rem; color: var(--success-color); text-transform: uppercase; }
+        .res-value { font-size: 1.5rem; font-weight: bold; color: #fff; margin: 5px 0; }
 
-        .result-box.active {
-            display: block;
-            animation: fadeIn 0.3s ease-in-out;
+        .final-report {
+            background-color: #0f172a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--accent-color);
         }
+        .report-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .report-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .report-label { font-size: 0.8rem; color: var(--accent-color); }
+        .report-data { font-size: 1.2rem; font-weight: bold; }
 
-        .result-label {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-
-        .result-value {
-            font-size: 2.25rem;
-            font-weight: 800;
-            color: var(--success-color);
-        }
-
-        .result-unit {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-
-        .formula-box {
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-color);
-            text-align: center;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
-    <!-- Carica MathJax per leggere i simboli LaTeX ($ e \frac) -->
-<script>
-  window.MathJax = {
-    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
-  };
-</script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 
-<div class="container">
+<div class="app-container">
     <div class="header">
-        <span class="badge">Telemetria Rover</span>
-        <h1>Calcola Accelerazione g</h1>
-        <p class="subtitle">Modulo Analisi Pendolo Interplanetario</p>
+        <h1 id="app-title">Terminale Missione</h1>
     </div>
 
-    <form id="calcForm">
-        <div class="form-group">
-            <label for="length">Lunghezza del pendolo (L)</label>
-            <div class="input-wrapper">
-                <input type="number" id="length" step="any" min="0.01" placeholder="es. 0.85" required>
-                <span class="unit">metri</span>
+    <!-- MAIN MENU -->
+    <div id="screen-menu" class="screen active">
+        <h2>Seleziona Modulo</h2>
+        <p>Analisti, accedete alle postazioni sperimentali per elaborare i dati telemetrici e ricostruire la missione del rover.</p>
+
+        <button class="menu-btn" id="btn-mod1" onclick="navTo('screen-mod1')">
+            <span>1. Modulo Gravità (Pendolo)</span>
+            <span class="status-icon" id="status-mod1">⭕</span>
+        </button>
+        <button class="menu-btn" id="btn-mod2" onclick="navTo('screen-mod2')">
+            <span>2. Modulo Attrito (Superficie)</span>
+            <span class="status-icon" id="status-mod2">⭕</span>
+        </button>
+        <button class="menu-btn" id="btn-mod3" onclick="navTo('screen-mod3')">
+            <span>3. Modulo Ruote (Rotolamento)</span>
+            <span class="status-icon" id="status-mod3">⭕</span>
+        </button>
+
+        <button class="btn-submit" id="btn-report" style="display: none; margin-top: 30px; background-color: var(--success-color);" onclick="navTo('screen-report')">
+            Genera Rapporto Finale
+        </button>
+    </div>
+
+    <!-- MODULO 1: GRAVITA -->
+    <div id="screen-mod1" class="screen">
+        <h2>Postazione 1: Gravità</h2>
+        <p>Inserisci i dati rilevati col pendolo per calcolare l'accelerazione <i>g</i> e identificare il pianeta.</p>
+        
+        <form id="form-mod1">
+            <div class="form-group">
+                <label>Lunghezza Pendolo (L) in metri</label>
+                <input type="number" id="m1-length" step="any" required placeholder="es. 0.85">
+            </div>
+            <div class="form-group">
+                <label>Periodo (T) in secondi</label>
+                <input type="number" id="m1-period" step="any" required placeholder="es. 2.15">
+            </div>
+            <p style="font-size: 0.75rem; text-align: center;"><i>Formula: g = (4 &middot; &pi;&sup2; &middot; L) &frasl; T&sup2;</i></p>
+            <button type="submit" class="btn-submit">Elabora Dati</button>
+        </form>
+
+        <div id="res-mod1" class="result-box">
+            <div class="res-title">Accelerazione Rilevata</div>
+            <div class="res-value"><span id="m1-g-out">0.00</span> m/s&sup2;</div>
+            <div class="res-title" style="margin-top: 10px;">Pianeta Identificato:</div>
+            <div class="res-value" id="m1-planet-out" style="color: var(--accent-color); font-size: 1.2rem;">Sconosciuto</div>
+        </div>
+        <button class="btn-back" onclick="navTo('screen-menu')">Torna al Menu</button>
+    </div>
+
+    <!-- MODULO 2: ATTRITO -->
+    <div id="screen-mod2" class="screen">
+        <h2>Postazione 2: Attrito</h2>
+        <p>Il rover è atterrato in una regione specifica. Lancia i blocchetti e scopri quale materiale rappresenta la zona d'atterraggio.</p>
+        
+        <form id="form-mod2">
+            <div class="form-group">
+                <label>Quale materiale ha percorso la distanza INTERMEDIA?</label>
+                <select id="m2-material" required>
+                    <option value="" disabled selected>Seleziona il materiale...</option>
+                    <option value="Feltro">Materiale A (Feltro)</option>
+                    <option value="Legno">Materiale B (Legno Liscio)</option>
+                    <option value="Gomma">Materiale C (Gomma)</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-submit">Verifica Superficie</button>
+        </form>
+
+        <div id="res-mod2" class="result-box">
+            <div class="res-title">Regione di Atterraggio:</div>
+            <div class="res-value" id="m2-surface-out" style="color: var(--accent-color); font-size: 1.2rem;">Sconosciuto</div>
+        </div>
+        <button class="btn-back" onclick="navTo('screen-menu')">Torna al Menu</button>
+    </div>
+
+    <!-- MODULO 3: ROTOLAMENTO -->
+    <div id="screen-mod3" class="screen">
+        <h2>Postazione 3: Ruote</h2>
+        <p>Leggi i dati su Phyphox. Inserisci la distanza percorsa sul tavolo e il numero di giri contati per capire che ruota usava il rover.</p>
+        
+        <form id="form-mod3">
+            <div class="form-group">
+                <label>Distanza percorsa (S) in cm</label>
+                <input type="number" id="m3-dist" step="any" required placeholder="es. 150">
+            </div>
+            <div class="form-group">
+                <label>Numero di giri registrati (N)</label>
+                <input type="number" id="m3-turns" step="any" required placeholder="es. 4.5">
+            </div>
+            <p style="font-size: 0.75rem; text-align: center;"><i>Formula Diametro: D = S &frasl; (N &middot; &pi;)</i></p>
+            <button type="submit" class="btn-submit">Calcola Diametro</button>
+        </form>
+
+        <div id="res-mod3" class="result-box">
+            <div class="res-title">Diametro Calcolato</div>
+            <div class="res-value"><span id="m3-d-out">0.0</span> cm</div>
+            <div class="res-title" style="margin-top: 10px;">Configurazione Rover:</div>
+            <div class="res-value" id="m3-wheel-out" style="color: var(--accent-color); font-size: 1.2rem;">Sconosciuto</div>
+        </div>
+        <button class="btn-back" onclick="navTo('screen-menu')">Torna al Menu</button>
+    </div>
+
+    <!-- RAPPORTO FINALE -->
+    <div id="screen-report" class="screen">
+        <h2>Rapporto di Missione</h2>
+        <p>Ottimo lavoro, analisti. I dati telemetrici sono stati completamente ricostruiti. Ecco il risultato dell'indagine:</p>
+
+        <div class="final-report">
+            <div class="report-item">
+                <div class="report-label">Target Localizzato (Modulo 1)</div>
+                <div class="report-data" id="final-planet">--</div>
+            </div>
+            <div class="report-item">
+                <div class="report-label">Zona di Atterraggio (Modulo 2)</div>
+                <div class="report-data" id="final-surface">--</div>
+            </div>
+            <div class="report-item">
+                <div class="report-label">Configurazione Meccanica (Modulo 3)</div>
+                <div class="report-data" id="final-wheel">--</div>
             </div>
         </div>
-
-        <div class="form-group">
-            <label for="period">Periodo di oscillazione (T)</label>
-            <div class="input-wrapper">
-                <input type="number" id="period" step="any" min="0.01" placeholder="es. 1.85" required>
-                <span class="unit">secondi</span>
-            </div>
-        </div>
-
-        <button type="submit">Calcola Gravità Pianeta</button>
-    </form>
-
-    <div class="result-box" id="resultBox">
-        <div class="result-label">Accelerazione di Gravità Rilevata (g)</div>
-        <div class="result-value" id="gResult">0.00</div>
-        <div class="result-unit">m/s²</div>
+        
+        <p style="margin-top: 20px; font-size: 0.85rem; color: var(--success-color); text-align: center;">
+            Missione completata con successo.<br>Agenzia Spaziale disconnessa.
+        </p>
     </div>
 
-    <div class="formula-box">
-        Formula applicata: $g = \frac{4 \cdot \pi^2 \cdot L}{T^2}$
-    </div>
 </div>
 
 <script>
-    document.getElementById('calcForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const L = parseFloat(document.getElementById('length').value);
-        const T = parseFloat(document.getElementById('period').value);
-        
-        if (L > 0 && T > 0) {
-            // Formula del pendolo invertita: g = (4 * pi^2 * L) / T^2
-            const g = (4 * Math.pow(Math.PI, 2) * L) / Math.pow(T, 2);
-            
-            const resultBox = document.getElementById('resultBox');
-            const gResult = document.getElementById('gResult');
-            
-            // Arrotonda a 2 cifre decimali
-            gResult.textContent = g.toFixed(2);
-            resultBox.classList.add('active');
+    // Memoria di stato della missione
+    const missionData = {
+        m1_done: false, planet: '',
+        m2_done: false, surface: '',
+        m3_done: false, wheel: ''
+    };
+    // Incolla qui il tuo URL generato da Google Apps Script
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwc1p9teMZLGzBwJxDevC80Y19SiTROXdH-hVt0J05EIup9uD2tWV7zxb_C7akWxt8A/exec";
+
+    // Navigazione tra le schermate
+    // Navigazione tra le schermate e invio dati
+function navTo(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    
+    if(screenId === 'screen-menu') {
+        document.getElementById('app-title').textContent = "Terminale Missione";
+        checkAllDone();
+    } else if (screenId === 'screen-report') {
+        document.getElementById('app-title').textContent = "Rapporto Finale";
+        document.getElementById('final-planet').textContent = missionData.planet;
+        document.getElementById('final-surface').textContent = missionData.surface;
+        document.getElementById('final-wheel').textContent = missionData.wheel;
+
+        // INVIO DATI A GOOGLE SHEETS
+        sendDataToSheet();
+    } else {
+        document.getElementById('app-title').textContent = "Acquisizione Dati";
+    }
+}
+
+// Funzione per spedire i dati al Foglio Google
+function sendDataToSheet() {
+    // Prepara il pacchetto dati
+    const payload = {
+        gVal: document.getElementById('m1-g-out').textContent,
+        planet: missionData.planet,
+        material: document.getElementById('m2-material').value,
+        surface: missionData.surface,
+        distance: document.getElementById('m3-dist').value,
+        turns: document.getElementById('m3-turns').value,
+        diameter: document.getElementById('m3-d-out').textContent,
+        wheel: missionData.wheel
+    };
+
+    // Spedizione silente via HTTP POST
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors', // Evita il blocco di sicurezza dei browser
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload)
+    })
+    .then(() => console.log("Dati inviati con successo a Google Sheets!"))
+    .catch(err => console.error("Errore nell'invio dei dati:", err));
+}
+
+    // Aggiorna lo stato dei bottoni nel menu
+    function updateMenuStatus(modNum, label) {
+        missionData[`m${modNum}_done`] = true;
+        const btn = document.getElementById(`btn-mod${modNum}`);
+        btn.classList.add('completed');
+        document.getElementById(`status-mod${modNum}`).textContent = "✅";
+    }
+
+    // Controlla se abilitare il report finale
+    function checkAllDone() {
+        if (missionData.m1_done && missionData.m2_done && missionData.m3_done) {
+            document.getElementById('btn-report').style.display = 'block';
         }
+    }
+
+    // LOGICA MODULO 1: GRAVITA
+    document.getElementById('form-mod1').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const L = parseFloat(document.getElementById('m1-length').value);
+        const T = parseFloat(document.getElementById('m1-period').value);
+        
+        const g = (4 * Math.pow(Math.PI, 2) * L) / Math.pow(T, 2);
+        document.getElementById('m1-g-out').textContent = g.toFixed(2);
+        
+        // Identificazione pianeta in base a g
+        let planetName = "Sistema Sconosciuto";
+        if (g > 9.0 && g < 10.5) planetName = "Terra (Anomalia di rotta!)";
+        else if (g > 3.0 && g < 4.5) planetName = "Ares-7 (Gravità debole)";
+        else if (g > 20.0) planetName = "Gigante Gassoso (Impossibile)";
+        else planetName = "Pianeta X-9 (Nuova Scoperta)";
+        
+        document.getElementById('m1-planet-out').textContent = planetName;
+        document.getElementById('res-mod1').classList.add('active');
+        
+        missionData.planet = `${planetName} (g = ${g.toFixed(1)} m/s²)`;
+        updateMenuStatus(1);
+    });
+
+    // LOGICA MODULO 2: ATTRITO
+    document.getElementById('form-mod2').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const mat = document.getElementById('m2-material').value;
+        let surfaceName = "";
+
+        // Associa il materiale alla superficie planetaria
+        if (mat === "Feltro") surfaceName = "Deserto di Polvere Sottile";
+        else if (mat === "Legno") surfaceName = "Altopiano Roccioso Levigato";
+        else if (mat === "Gomma") surfaceName = "Canyon di Roccia Lavica Ruvida";
+
+        document.getElementById('m2-surface-out').textContent = surfaceName;
+        document.getElementById('res-mod2').classList.add('active');
+        
+        missionData.surface = surfaceName;
+        updateMenuStatus(2);
+    });
+
+    // LOGICA MODULO 3: RUOTE
+    document.getElementById('form-mod3').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const S = parseFloat(document.getElementById('m3-dist').value);
+        const N = parseFloat(document.getElementById('m3-turns').value);
+        
+        // Calcolo diametro: S = N * pi * D => D = S / (N * pi)
+        const D = S / (N * Math.PI);
+        document.getElementById('m3-d-out').textContent = D.toFixed(1);
+
+        // Identificazione modello ruota
+        let wheelModel = "Ruota Non Standard";
+        if (Math.abs(D - 8) < 1.5) wheelModel = "Modello Alpha (Piccola, 8cm)";
+        else if (Math.abs(D - 12) < 1.5) wheelModel = "Modello Beta (Media, 12cm)";
+        else if (Math.abs(D - 16) < 1.5) wheelModel = "Modello Gamma (Grande, 16cm)";
+
+        document.getElementById('m3-wheel-out').textContent = wheelModel;
+        document.getElementById('res-mod3').classList.add('active');
+
+        missionData.wheel = wheelModel;
+        updateMenuStatus(3);
     });
 </script>
 
