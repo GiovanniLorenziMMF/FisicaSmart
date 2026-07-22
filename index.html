@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolo Gravità Interplanetaria | Telemetria Rover</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #38bdf8;
+            --accent-hover: #0284c7;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --success-color: #4ade80;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent-color);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .subtitle {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            padding-right: 60px;
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 1.125rem;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+
+        .unit {
+            position: absolute;
+            right: 16px;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--accent-color);
+            color: #0f172a;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .result-box {
+            margin-top: 24px;
+            padding: 20px;
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-box.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .result-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--success-color);
+        }
+
+        .result-unit {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .formula-box {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <span class="badge">Telemetria Rover</span>
+        <h1>Calcola Accelerazione g</h1>
+        <p class="subtitle">Modulo Analisi Pendolo Interplanetario</p>
+    </div>
+
+    <form id="calcForm">
+        <div class="form-group">
+            <label for="length">Lunghezza del pendolo (L)</label>
+            <div class="input-wrapper">
+                <input type="number" id="length" step="any" min="0.01" placeholder="es. 0.85" required>
+                <span class="unit">metri</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="period">Periodo di oscillazione (T)</label>
+            <div class="input-wrapper">
+                <input type="number" id="period" step="any" min="0.01" placeholder="es. 1.85" required>
+                <span class="unit">secondi</span>
+            </div>
+        </div>
+
+        <button type="submit">Calcola Gravità Pianeta</button>
+    </form>
+
+    <div class="result-box" id="resultBox">
+        <div class="result-label">Accelerazione di Gravità Rilevata (g)</div>
+        <div class="result-value" id="gResult">0.00</div>
+        <div class="result-unit">m/s²</div>
+    </div>
+
+    <div class="formula-box">
+        Formula applicata: $g = \frac{4 \cdot \pi^2 \cdot L}{T^2}$
+    </div>
+</div>
+
+<script>
+    document.getElementById('calcForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const L = parseFloat(document.getElementById('length').value);
+        const T = parseFloat(document.getElementById('period').value);
+        
+        if (L > 0 && T > 0) {
+            // Formula del pendolo invertita: g = (4 * pi^2 * L) / T^2
+            const g = (4 * Math.pow(Math.PI, 2) * L) / Math.pow(T, 2);
+            
+            const resultBox = document.getElementById('resultBox');
+            const gResult = document.getElementById('gResult');
+            
+            // Arrotonda a 2 cifre decimali
+            gResult.textContent = g.toFixed(2);
+            resultBox.classList.add('active');
+        }
+    });
+</script>
+
+</body>
+</html>
