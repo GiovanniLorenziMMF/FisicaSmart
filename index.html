@@ -190,6 +190,13 @@
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
+    <!-- Carica MathJax per leggere i simboli LaTeX ($ e \frac) -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
 
