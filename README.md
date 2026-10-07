@@ -1,2 +1,0 @@
-# FisicaSmart
-Calcolatore di gravità
