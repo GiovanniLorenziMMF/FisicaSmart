@@ -22,7 +22,7 @@ window.MathJax = {
 };
 </script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-<script src="admin.js?v=4.2"></script>
+<script src="admin.js?v=4.4-s3"></script>
 
 <style>
 :root {
@@ -1173,11 +1173,13 @@ function computeScore() {
     lines.push({ label: tr('yourMeas') + tF.text + exp(fmt(ALIEN.earthFreq, 2) + ' Hz'), pts: tF.pts, max: 2 });
 
     // --- Postazione 2 (3 pt) ---
-    const pSurf = (m2.surface !== '' && parseInt(m2.surface, 10) === M2.correctSurfaceIndex) ? 1 : 0;
+    // correctSurfaceIndex può essere un numero (un solo suolo corretto) o un elenco, es. [1, 2]
+    const okSurf = [].concat(M2.correctSurfaceIndex);
+    const pSurf = (m2.surface !== '' && okSurf.indexOf(parseInt(m2.surface, 10)) !== -1) ? 1 : 0;
     const tA = rangeScore(num(m2.angle), M2.correctAngleMin, M2.correctAngleMax, M2.angleFalloffDeg, 2);
     const s2 = pSurf + tA.pts;
     lines.push({ head: true, label: tr('h2'), pts: s2, max: 3 });
-    lines.push({ label: tr(pSurf ? 'soilOk' : 'soilNo') + exp(surfFull(M2.correctSurfaceIndex)), pts: pSurf, max: 1 });
+    lines.push({ label: tr(pSurf ? 'soilOk' : 'soilNo') + exp(okSurf.map(i => surfFull(i)).join(' / ')), pts: pSurf, max: 1 });
     lines.push({ label: tr('angleL') + tA.text + exp(fmt(M2.correctAngleMin) + '–' + fmt(M2.correctAngleMax) + '°'), pts: tA.pts, max: 2 });
 
     // --- Postazione 3 (3 pt) ---
