@@ -88,7 +88,7 @@ const CONFIG = {
         scaleTickDeg: 3,             // ampiezza di una tacchetta piccola sulla scala dei gradi del martello
         // Punteggio pieno (2 pt) per qualsiasi angolo fra Min e Max, estremi inclusi.
         // Fuori dall'intervallo cala in modo lineare e arriva a zero a "angleFalloffDeg" gradi di distanza.
-        correctAngleMin: 27,
+        correctAngleMin: 25,
         correctAngleMax: 30,
         angleFalloffDeg: 8
     },
