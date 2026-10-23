@@ -22,7 +22,7 @@ window.MathJax = {
 };
 </script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
-<script src="admin.js?v=4.1"></script>
+<script src="admin.js?v=4.2"></script>
 
 <style>
 :root {
@@ -249,6 +249,18 @@ hr { margin: 22px 0; border: none; border-top: 1px solid var(--line); }
             display: flex; align-items: center; justify-content: center; line-height: 0; flex-shrink: 0; }
 .lang-btn:active { transform: translateY(1px); }
 .lang-btn svg { display: block; width: 30px; height: 18px; border-radius: 2px; }
+
+/* ---------- v4.2: gradimento a stelle ---------- */
+.rating { background: var(--deep); border: 1px solid var(--line); border-radius: 10px; padding: 14px 10px 10px; margin-bottom: 16px; text-align: center; }
+.rating-q { color: var(--text); font-weight: 600; margin-bottom: 6px; }
+.stars { display: flex; justify-content: center; gap: 4px; margin-bottom: 4px; }
+.star { width: auto; min-height: 0; margin: 0; padding: 2px 6px; background: transparent; border: none; border-radius: 8px;
+        font-size: 2.4rem; line-height: 1; color: #3b4658; transition: color .15s, transform .15s; }
+.star.on { color: var(--warning); text-shadow: 0 0 14px rgba(251,191,36,.45); }
+.star.pop { animation: star-pop .35s ease-out; }
+@keyframes star-pop { 50% { transform: scale(1.3); } }
+.rating-note { font-size: .85rem; margin: 0; }
+.rating-note.done { color: var(--success); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -432,6 +444,11 @@ hr { margin: 22px 0; border: none; border-top: 1px solid var(--line); }
         <div class="trio" id="report-trio"></div>
         <div class="recap"><dl id="recap-list"></dl></div>
 
+        <div class="rating">
+            <p class="rating-q" data-i18n="rate.q">Prima di trasmettere: quanto vi è piaciuto il laboratorio?</p>
+            <div class="stars" id="stars" role="radiogroup" aria-label="Gradimento da 1 a 5 stelle" data-i18n-aria="rate.aria"></div>
+            <p class="rating-note" id="rating-note"></p>
+        </div>
         <div id="report-msg" class="msg hidden" role="alert"></div>
         <button id="btn-submit" data-i18n="rep.submit">Trasmetti il rapporto</button>
         <div id="confirm-box" class="hidden">
@@ -573,6 +590,8 @@ const EN = {
     'rep.submit': `Send the report`,
     'rep.confirm': `I confirm: send it now`,
     'rep.cancel': `Wait, let's check again`,
+    'rate.q': `Before you send it: how much did you like the lab?`,
+    'rate.aria': `Rating from 1 to 5 stars`,
     'score.title': `Mission result`,
     'score.outOf': `out of 10`,
     'score.retry': `Try sending again`
@@ -617,7 +636,8 @@ const STR = {
         sc0: 'Molti dati restano incerti: discutete con l\'educatore che cosa è andato storto.',
         opLink: 'Area operatori · Resetta partita',
         opText: 'Riservato agli operatori del museo. Il reset cancella la partita su questo telefono.',
-        opPw: 'Password operatori', opWrong: 'Password errata.', opGo: 'Azzera e ricomincia', opCancel: 'Annulla'
+        opPw: 'Password operatori', opWrong: 'Password errata.', opGo: 'Azzera e ricomincia', opCancel: 'Annulla',
+        rateHint: 'Toccate una stella: il voto vale subito.', rateDone: 'Grazie! Il vostro voto: {n} su 5.', rateStar: '{n} su 5'
     },
     en: {
         docTitle: EN.docTitle,
@@ -658,7 +678,8 @@ const STR = {
         sc0: 'A lot of data is still unsure: talk with the educator about what went wrong.',
         opLink: 'Staff area · Reset game',
         opText: 'Only for museum staff. Reset deletes the game on this phone.',
-        opPw: 'Staff password', opWrong: 'Wrong password.', opGo: 'Reset and start again', opCancel: 'Cancel'
+        opPw: 'Staff password', opWrong: 'Wrong password.', opGo: 'Reset and start again', opCancel: 'Cancel',
+        rateHint: 'Tap a star: your vote counts at once.', rateDone: 'Thank you! Your vote: {n} out of 5.', rateStar: '{n} out of 5'
     }
 };
 /** testo generato dal codice, con segnaposti {x} */
@@ -768,6 +789,7 @@ function freshState() {
         m2: { surface: '', angle: '' },
         m3: { wheel: '', graph: '' },
         hints: {},
+        rating: null,       // gradimento del laboratorio, da 1 a 5 stelle
         submitted: null     // { score, lines, payload, send }
     };
 }
@@ -1081,8 +1103,32 @@ function renderReport() {
     });
     $('confirm-box').classList.add('hidden'); $('btn-submit').classList.remove('hidden');
     $('report-msg').classList.add('hidden');
+    renderStars();
+}
+/** Gradimento: un tocco sulla stella è già il voto, senza altri pulsanti.
+    Finché non c'è un voto il rapporto non si può trasmettere. */
+function renderStars(popAt) {
+    const box = $('stars'), r = state.rating;
+    box.innerHTML = '';
+    for (let n = 1; n <= 5; n++) {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'star' + (r && n <= r ? ' on' : '') + (popAt === n ? ' pop' : '');
+        b.textContent = '★';
+        b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', r === n ? 'true' : 'false');
+        b.setAttribute('aria-label', tr('rateStar', { n: n }));
+        b.addEventListener('click', () => {
+            if (state.submitted) return;
+            state.rating = n; saveState(); renderStars(n);
+        });
+        box.appendChild(b);
+    }
+    const note = $('rating-note');
+    note.textContent = r ? tr('rateDone', { n: r }) : tr('rateHint');
+    note.classList.toggle('done', !!r);
+    $('btn-submit').disabled = !r;
 }
 $('btn-submit').addEventListener('click', () => {
+    if (!state.rating) return;
     const msg = $('report-msg'), c = completeness(), missing = [];
     ['m1', 'm2', 'm3'].forEach((k, i) => { if (c[k] < 2) missing.push(tr('station') + ' ' + (i + 1)); });
     msg.className = 'msg warn';
@@ -1174,6 +1220,7 @@ function submitMission() {
         graph: m3.graph ? graphLabel(m3.graph, 'it') : '',
         hints: r.hintsUsed.join(' '),
         lang: LANG,
+        rating: state.rating,
         // campi letti dallo script Apps Script della prima versione dell'app
         gVal: m1.found ? 'Completato' : 'Non completato',
         wheelDiameter: m3.wheel !== '' ? 2 * WHEELS[parseInt(m3.wheel, 10)] : ''

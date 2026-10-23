@@ -1,4 +1,4 @@
-// FILE: admin.js  —  Fisica Smart · Operazione: Riconoscimento Esoplanetario (v4.1)
+// FILE: admin.js  —  Fisica Smart · Operazione: Riconoscimento Esoplanetario (v4.2)
 // ---------------------------------------------------------------------------------
 // Tutto ciò che il docente può voler cambiare sta qui. index.html non va toccato.
 // L'app è in italiano e in inglese: dove serve, accanto al testo italiano c'è la
@@ -9,7 +9,7 @@ const CONFIG = {
 
     // --- IMPOSTAZIONI GENERALI ---
     app: {
-        version: "4.1",
+        version: "4.2",
         missionMinutes: 45,          // durata prevista (il timer diventa giallo oltre questo valore)
         // Incolla qui l'URL /exec della Web App di Google Apps Script (vedi Code.gs)
         scriptUrl: "https://script.google.com/macros/s/AKfycbwc1p9teMZLGzBwJxDevC80Y19SiTROXdH-hVt0J05EIup9uD2tWV7zxb_C7akWxt8A/exec",
@@ -83,7 +83,7 @@ const CONFIG = {
             { name: "Sedimento salino",  name_en: "Salt sediment",  texture: "salt" },
             { name: "Regolite ferrosa",  name_en: "Iron regolith",  texture: "iron" }
         ],
-        correctSurfaceIndex: 2,      // indice (0,1,2) del blocchetto ad attrito INTERMEDIO -> 2 = Suolo 3
+        correctSurfaceIndex: 1,      // indice (0,1,2) del blocchetto ad attrito INTERMEDIO -> 1 = Suolo 2
         targetDistanceCm: 20,
         scaleTickDeg: 3,             // ampiezza di una tacchetta piccola sulla scala dei gradi del martello
         // Punteggio pieno (2 pt) per qualsiasi angolo fra Min e Max, estremi inclusi.
